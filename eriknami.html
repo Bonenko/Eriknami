@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Service Announcement: Erik's Nami</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Roboto:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(180deg, #0f172a 0%, #1e3a8a 50%, #0ea5e9 100%);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .comic-font {
+            font-family: 'Bangers', cursive;
+            letter-spacing: 2px;
+        }
+
+        /* Bubble Animation */
+        .bubble {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            bottom: -20px;
+            animation: rise infinite ease-in;
+        }
+
+        @keyframes rise {
+            0% {
+                bottom: -20px;
+                transform: translateX(0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                bottom: 110vh;
+                transform: translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* Warning Pulse */
+        .pulse-warning {
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .stat-card {
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body class="text-white relative">
+
+    <!-- Bubbles Container -->
+    <div id="bubbles-container" class="absolute inset-0 pointer-events-none z-0"></div>
+
+    <div class="relative z-10 container mx-auto px-4 py-12 flex flex-col items-center justify-center min-h-screen">
+        
+        <!-- Warning Icon -->
+        <div class="mb-6 pulse-warning bg-red-600 rounded-full p-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        </div>
+
+        <!-- Main Text -->
+        <h1 class="comic-font text-6xl md:text-8xl text-center text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500 drop-shadow-lg mb-4 uppercase">
+            WARNING
+        </h1>
+        
+        <h2 class="text-4xl md:text-6xl font-bold text-center mb-8 drop-shadow-md">
+            DON'T LET ERIK PLAY NAMI
+        </h2>
+
+        <!-- The Stats / Evidence -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl mb-12">
+            <!-- Card 1 -->
+            <div class="stat-card bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-6 text-center">
+                <div class="text-5xl mb-2">🫧</div>
+                <h3 class="text-xl font-bold text-blue-200">Bubble Accuracy</h3>
+                <p class="text-4xl font-bold text-red-400">0.4%</p>
+                <p class="text-sm text-gray-300 mt-2">He misses stationary targets.</p>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="stat-card bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-6 text-center">
+                <div class="text-5xl mb-2">🌊</div>
+                <h3 class="text-xl font-bold text-blue-200">Tidal Wave Impact</h3>
+                <p class="text-4xl font-bold text-red-400">Whiffed</p>
+                <p class="text-sm text-gray-300 mt-2">Usually hits the wall.</p>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="stat-card bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-6 text-center">
+                <div class="text-5xl mb-2">💀</div>
+                <h3 class="text-xl font-bold text-blue-200">ADC Mental Health</h3>
+                <p class="text-4xl font-bold text-red-400">Critical</p>
+                <p class="text-sm text-gray-300 mt-2">Please, for the love of LP.</p>
+            </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="text-center space-y-4">
+            <p class="text-xl text-blue-100 italic">"I saw him try to heal a ward once." - Anonymous Jungler</p>
+            
+            <button onclick="banErik()" class="mt-8 px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-full shadow-lg transform transition hover:scale-105 text-xl flex items-center gap-2 mx-auto">
+                <span>🚫</span> BAN ERIK'S NAMI
+            </button>
+
+            <div id="ban-message" class="hidden mt-4 p-4 bg-green-500/80 rounded-lg text-lg font-bold">
+                Thank you for saving the Rift.
+            </div>
+        </div>
+
+        <footer class="absolute bottom-4 text-white/40 text-sm">
+            Paid for by the Committee to Save Bot Lane
+        </footer>
+    </div>
+
+    <script>
+        // Bubble Generator
+        function createBubbles() {
+            const container = document.getElementById('bubbles-container');
+            const bubbleCount = 30;
+
+            for (let i = 0; i < bubbleCount; i++) {
+                const bubble = document.createElement('div');
+                bubble.classList.add('bubble');
+                
+                const size = Math.random() * 40 + 10 + 'px';
+                bubble.style.width = size;
+                bubble.style.height = size;
+                
+                bubble.style.left = Math.random() * 100 + 'vw';
+                bubble.style.animationDuration = Math.random() * 5 + 5 + 's';
+                bubble.style.animationDelay = Math.random() * 5 + 's';
+                
+                container.appendChild(bubble);
+            }
+        }
+
+        // Button Click Handler
+        function banErik() {
+            const btn = document.querySelector('button');
+            const msg = document.getElementById('ban-message');
+            
+            btn.innerHTML = "<span>✅</span> ERIK BANNED";
+            btn.classList.remove('bg-red-600', 'hover:bg-red-700');
+            btn.classList.add('bg-green-600', 'hover:bg-green-700', 'cursor-default');
+            btn.onclick = null; // Disable click
+            
+            msg.classList.remove('hidden');
+            
+            // Add extra bubbles for celebration
+            for(let i=0; i<20; i++) {
+                const bubble = document.createElement('div');
+                bubble.classList.add('bubble');
+                bubble.style.width = '20px';
+                bubble.style.height = '20px';
+                bubble.style.left = Math.random() * 100 + 'vw';
+                bubble.style.bottom = '-50px';
+                bubble.style.animationDuration = '2s';
+                document.getElementById('bubbles-container').appendChild(bubble);
+            }
+        }
+
+        // Initialize
+        createBubbles();
+    </script>
+</body>
+</html>
