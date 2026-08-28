@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bonenkos Song Guesser</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at center, #1e1e24 0%, #0d0d11 100%);
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .card {
+      position: relative;
+      background-color: rgba(25, 25, 30, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 2.5rem 2.2rem;
+      border-radius: 20px;
+      text-align: center;
+      width: 440px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 1.6rem;
+      letter-spacing: 0.5px;
+      margin-bottom: 1.4rem;
+      background: linear-gradient(135deg, #ff2a85 0%, #00d2ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 20px rgba(255, 42, 133, 0.3);
+    }
+
+    .score-board {
+      display: flex;
+      justify-content: space-around;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 1.4rem;
+      font-size: 0.95rem;
+    }
+
+    .score-board span {
+      font-weight: bold;
+      color: #1db954;
+    }
+
+    label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #888895;
+      margin-bottom: 6px;
+      text-align: left;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 1.4rem;
+      box-sizing: border-box;
+      background: rgba(18, 18, 22, 0.9);
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    select:focus, input:focus {
+      border-color: #1db954;
+    }
+
+    .search-container {
+      position: relative;
+      width: 100%;
+      margin-bottom: 1.2rem;
+    }
+
+    .suggestions-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #1c1c23;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+      text-align: left;
+      margin-top: -6px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.7);
+    }
+
+    .suggestion-item {
+      padding: 12px 14px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .suggestion-item:last-child {
+      border-bottom: none;
+    }
+
+    .suggestion-item:hover {
+      background: #1db954;
+      color: #000;
+    }
+
+    .suggestion-artist {
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-left: 5px;
+    }
+
+    .suggestion-item:hover .suggestion-artist {
+      color: #222;
+    }
+
+    .btn-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 1.2rem;
+    }
+
+    .btn-time {
+      background: rgba(255, 255, 255, 0.04);
+      color: #888895;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 10px 6px;
+      cursor: pointer;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .btn-time span.tier-label {
+      font-size: 0.7rem;
+      opacity: 0.6;
+    }
+
+    .btn-time.active {
+      background: #1db954;
+      color: #000;
+      font-weight: bold;
+      border-color: #1db954;
+      box-shadow: 0 0 14px rgba(29, 185, 84, 0.4);
+    }
+
+    .btn-time.active span.tier-label {
+      opacity: 0.8;
+      color: #000;
+    }
+
+    .btn-time:disabled {
+      opacity: 0.25;
+      cursor: not-allowed;
+      background: rgba(255, 255, 255, 0.02);
+      color: #555;
+    }
+
+    .progress-info-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #888895;
+      margin-bottom: 4px;
+    }
+
+    .progress-container {
+      width: 100%;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 1.4rem;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #1db954;
+      border-radius: 6px;
+      pointer-events: none;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+    .progress-marker {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: rgba(255, 255, 255, 0.3);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .btn-action {
+      width: 100%;
+      background-color: #1db954;
+      color: #000;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 14px;
+      border-radius: 10px;
+      margin-bottom: 1.2rem;
+      font-size: 1rem;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .btn-action:hover {
+      background-color: #1ed760;
+    }
+
+    .btn-action:active {
+      transform: scale(0.98);
+    }
+
+    .action-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 0.5rem;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      background-color: rgba(255, 255, 255, 0.06);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      cursor: pointer;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      transition: background-color 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .btn-reroll {
+      background-color: rgba(255, 255, 255, 0.03);
+      color: #bbb;
+    }
+
+    .volume-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 1.4rem;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .volume-btn {
+      background: none;
+      border: none;
+      color: #aaa;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .volume-slider {
+      width: 100%;
+      accent-color: #1db954;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    #status {
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-top: 1rem;
+      min-height: 22px;
+      color: #ff4d4d;
+    }
+
+    .genre-tag {
+      font-size: 0.85rem;
+      color: #1db954;
+      margin-bottom: 1.2rem;
+      font-weight: 500;
+    }
+
+    .stream-count-tag {
+      font-size: 0.8rem;
+      color: #888;
+      margin-top: 6px;
+    }
+
+    /* Animated Reveal Overlay */
+    .reveal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 15, 18, 0.96);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.9);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .reveal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    .overlay-title {
+      font-size: 1.7rem;
+      font-weight: 900;
+      margin-bottom: 14px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .overlay-title.correct {
+      color: #1db954;
+      text-shadow: 0 0 16px rgba(29, 185, 84, 0.4);
+    }
+
+    .overlay-title.wrong {
+      color: #ff4d4d;
+      text-shadow: 0 0 16px rgba(255, 77, 77, 0.4);
+    }
+
+    .cover-art {
+      width: 120px;
+      height: 120px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+      object-fit: cover;
+    }
+
+    .track-name {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .artist-name {
+      font-size: 0.95rem;
+      color: #aaa;
+      margin-bottom: 8px;
+    }
+
+    .time-badge {
+      font-size: 0.85rem;
+      color: #1db954;
+      background: rgba(29, 185, 84, 0.12);
+      border: 1px solid rgba(29, 185, 84, 0.3);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Bonenkos Song Guesser</h2>
+
+    <div class="score-board">
+      <div>Score: <span id="score">0</span></div>
+      <div>Streak: <span id="streak">0</span></div>
+    </div>
+
+    <label>DIFFICULTY</label>
+    <select id="difficulty" onchange="fetchTrack()">
+      <option value="easy">Easy (1B+ Streams)</option>
+      <option value="medium">Medium (500M - 1B Streams)</option>
+      <option value="hard">Hard (100M - 500M Streams)</option>
+      <option value="expert">Expert (50M - 100M Streams)</option>
+      <option value="impossible">Impossible (1M - 50M Streams)</option>
+    </select>
+
+    <div class="genre-tag" id="trackStatus">Loading track...</div>
+
+    <label>SNIPPET DURATION</label>
+    <div class="btn-group" id="durationGroup">
+      <button class="btn-time active" data-duration="0.1" onclick="selectDuration(0, this)">0.1s <span class="tier-label">Tier 1</span></button>
+      <button class="btn-time" data-duration="0.5" disabled onclick="selectDuration(1, this)">0.5s <span class="tier-label">Tier 2</span></button>
+      <button class="btn-time" data-duration="1" disabled onclick="selectDuration(2, this)">1.0s <span class="tier-label">Tier 3</span></button>
+      <button class="btn-time" data-duration="5" disabled onclick="selectDuration(3, this)">5.0s <span class="tier-label">Tier 4</span></button>
+      <button class="btn-time" data-duration="15" disabled onclick="selectDuration(4, this)">15.0s <span class="tier-label">Tier 5</span></button>
+      <button class="btn-time" data-duration="30" disabled onclick="selectDuration(5, this)">30.0s <span class="tier-label">Tier 6</span></button>
+    </div>
+
+    <div class="progress-info-row">
+      <span>Timeline Progress</span>
+      <span id="timeDisplay">0.0s / 30.0s</span>
+    </div>
+    <div class="progress-container" id="progressContainer" onclick="handleProgressBarClick(event)">
+      <div id="progressBar" class="progress-bar"></div>
+    </div>
+
+    <button class="btn-action" onclick="playSnippet()">▶ PLAY SNIPPET</button>
+
+    <div class="volume-container">
+      <button id="muteBtn" class="volume-btn" onclick="toggleMute()">🔊</button>
+      <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="0.8" oninput="changeVolume(this.value)">
+    </div>
+
+    <div class="search-container">
+      <input type="text" id="guessInput" placeholder="Search song or artist..." autocomplete="off" oninput="handleSearchInput(this.value)">
+      <div id="suggestions" class="suggestions-list"></div>
+    </div>
+
+    <button class="btn-secondary" onclick="checkGuess()">Submit Guess</button>
+    
+    <div class="action-row">
+      <button class="btn-secondary btn-reroll" onclick="rerollTrack()">🎲 Reroll</button>
+      <button class="btn-secondary" style="background: rgba(255,255,255,0.04); color: #ccc;" onclick="skipTrack()">Skip Tier</button>
+    </div>
+
+    <div id="status"></div>
+
+    <!-- Animated Result Overlay -->
+    <div id="revealOverlay" class="reveal-overlay">
+      <div id="overlayHeader" class="overlay-title">CORRECT!</div>
+      <img id="coverArt" class="cover-art" src="" alt="Album Art">
+      <div id="trackName" class="track-name">Song Name</div>
+      <div id="artistName" class="artist-name">Artist Name</div>
+      <div id="playCount" class="stream-count-tag">Streams: 0</div>
+      <div id="timeBadge" class="time-badge">Guessed at tier</div>
+    </div>
+  </div>
+
+  <audio id="audioPlayer" preload="auto"></audio>
+
+  <script>
+    const LASTFM_API_KEY = 'b2575227003f871647f32d4b301b129b';
+    const DURATIONS = [0.1, 0.5, 1, 5, 15, 30];
+    const MAX_TRACK_DURATION = 30; 
+    let currentUnlockedIndex = 0;
+    let currentTrack = {};
+    let stopTimer = null;
+    let animFrameId = null;
+    let searchDebounce = null;
+    let score = 0;
+    let streak = 0;
+    let previousVolume = 0.8;
+
+    const audio = document.getElementById('audioPlayer');
+    const progressBar = document.getElementById('progressBar');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const muteBtn = document.getElementById('muteBtn');
+
+    audio.volume = 0.8;
+
+    const SEARCH_POOLS = {
+      easy: [
+        'Blinding Lights The Weeknd', 'Shape of You Ed Sheeran', 'As It Was Harry Styles', 
+        'Starboy The Weeknd', 'Sunflower Post Malone', 'One Dance Drake', 'Dance Monkey Tones and I',
+        'Watermelon Sugar Harry Styles', 'Stay The Kid LAROI', 'Levitating Dua Lipa', 
+        'Bad Guy Billie Eilish', 'Rockstar Post Malone', 'Senorita Shawn Mendes',
+        'Someone You Loved Lewis Capaldi', 'Believer Imagine Dragons', 'Thinking Out Loud Ed Sheeran'
+      ],
+      medium: [
+        'Mr Brightside The Killers', 'Chandelier Sia', 'Super Bass Nicki Minaj', 'Take Me To Church Hozier', 
+        'Pumped Up Kicks Foster the People', 'Riptide Vance Joy', 'Counting Stars OneRepublic'
+      ],
+      hard: [
+        'Safe and Sound Capital Cities', 'Cigarette Daydreams Cage the Elephant', 'Breezeblocks Alt-J', 
+        'Tongue Tied GROUPLOVE', 'Electric Feel MGMT', 'Kids MGMT'
+      ],
+      expert: [
+        'Dark Red Steve Lacy', 'Francis Forever Mitski', 'Space Song Beach House', 'Freaks Surf Curse'
+      ],
+      impossible: [
+        'Alberto Balsalm Aphex Twin', 'Alison Slowdive', 'Kettering The Antlers', 'Dayvan Cowboy Boards of Canada'
+      ]
+    };
+
+    function initProgressMarkers() {
+      const container = document.getElementById('progressContainer');
+      container.querySelectorAll('.progress-marker').forEach(m => m.remove());
+
+      DURATIONS.forEach(dur => {
+        const percent = (dur / MAX_TRACK_DURATION) * 100;
+        const marker = document.createElement('div');
+        marker.className = 'progress-marker';
+        marker.style.left = `${percent}%`;
+        container.appendChild(marker);
+      });
+    }
+    initProgressMarkers();
+
+    function resetSnippetProgression() {
+      currentUnlockedIndex = 0;
+      updateDurationUI();
+      updateTimeDisplay(0);
+    }
+
+    function updateTimeDisplay(seconds) {
+      timeDisplay.innerText = `${seconds.toFixed(1)}s / ${MAX_TRACK_DURATION.toFixed(1)}s`;
+    }
+
+    function updateDurationUI() {
+      const buttons = document.querySelectorAll('.btn-time');
+      buttons.forEach((btn, idx) => {
+        btn.disabled = idx > currentUnlockedIndex;
+        btn.classList.toggle('active', idx === currentUnlockedIndex);
+      });
+    }
+
+    function selectDuration(tierIdx, btn) {
+      if (btn.disabled) return;
+      currentUnlockedIndex = tierIdx;
+      updateDurationUI();
+    }
+
+    function changeVolume(val) {
+      audio.volume = val;
+      muteBtn.innerText = val == 0 ? '🔇' : val < 0.5 ? '🔉' : '🔊';
+    }
+
+    function toggleMute() {
+      if (audio.volume > 0) {
+        previousVolume = audio.volume;
+        volumeSlider.value = 0;
+        changeVolume(0);
+      } else {
+        volumeSlider.value = previousVolume || 0.8;
+        changeVolume(previousVolume || 0.8);
+      }
+    }
+
+    function formatNumber(num) {
+      return parseInt(num).toLocaleString();
+    }
+
+    function jsonp(url, callbackName) {
+      const oldScript = document.getElementById('jsonp-script');
+      if (oldScript) oldScript.remove();
+
+      const script = document.createElement('script');
+      script.id = 'jsonp-script';
+      script.src = `${url}&callback=${callbackName}`;
+      script.onerror = () => {
+        if (callbackName === 'onTrackFetched') useFallbackTrack();
+      };
+      document.body.appendChild(script);
+    }
+
+    function fetchTrack() {
+      const status = document.getElementById('status');
+      const trackStatus = document.getElementById('trackStatus');
+      const difficulty = document.getElementById('difficulty').value;
+
+      document.getElementById('revealOverlay').classList.remove('active');
+      status.innerText = "";
+      document.getElementById('guessInput').value = "";
+      progressBar.style.width = '0%';
+      updateTimeDisplay(0);
+      hideSuggestions();
+      trackStatus.innerText = "Loading track & stream data...";
+
+      resetSnippetProgression();
+
+      const pool = SEARCH_POOLS[difficulty];
+      const randomQuery = pool[Math.floor(Math.random() * pool.length)];
+      const url = `https://itunes.apple.com/search?term=${encodeURIComponent(randomQuery)}&entity=song&limit=10`;
+
+      jsonp(url, 'onTrackFetched');
+    }
+
+    window.onTrackFetched = function(data) {
+      const trackStatus = document.getElementById('trackStatus');
+      const validTracks = (data.results || []).filter(t => t.previewUrl && t.trackName);
+
+      if (validTracks.length === 0) {
+        useFallbackTrack();
+        return;
+      }
+
+      const selected = validTracks[0];
+      currentTrack = {
+        title: selected.trackName,
+        artist: selected.artistName,
+        src: selected.previewUrl,
+        artwork: selected.artworkUrl100 || selected.artworkUrl60 || '',
+        plays: 'Loading...'
+      };
+
+      audio.src = currentTrack.src;
+      audio.load();
+
+      const lastFmUrl = `https://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=${LASTFM_API_KEY}&artist=${encodeURIComponent(currentTrack.artist)}&track=${encodeURIComponent(currentTrack.title)}&format=json`;
+
+      fetch(lastFmUrl)
+        .then(res => res.json())
+        .then(resData => {
+          if (resData.track && resData.track.playcount) {
+            currentTrack.plays = formatNumber(resData.track.playcount);
+          } else {
+            currentTrack.plays = "1,500,000,000+";
+          }
+          trackStatus.innerText = "Track ready! Press Play.";
+        })
+        .catch(() => {
+          currentTrack.plays = "Available on Spotify";
+          trackStatus.innerText = "Track ready! Press Play.";
+        });
+    };
+
+    function useFallbackTrack() {
+      const trackStatus = document.getElementById('trackStatus');
+      currentTrack = {
+        title: "Blinding Lights",
+        artist: "The Weeknd",
+        src: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioVideo122/v4/bf/92/bb/bf92bb6d-f495-2c8e-2895-e2197e93dc49/mzaf_11301777227463765406.plus.aac.p.m4a",
+        artwork: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/a9/9e/7b/a99e7b2b-ff27-b6f7-41a0-12e0325fa1bd/20UMGIM02381.rgb.jpg/100x100bb.jpg",
+        plays: "3,800,000,000+"
+      };
+      audio.src = currentTrack.src;
+      audio.load();
+      trackStatus.innerText = "Track ready! Press Play.";
+    }
+
+    function updateProgressBar(startPerfTime, durationToPlay, startOffset, maxAllowedTime) {
+      const elapsed = (performance.now() - startPerfTime) / 1000;
+      const currentAbsoluteTime = Math.min(startOffset + elapsed, maxAllowedTime);
+
+      const progressPercent = (currentAbsoluteTime / MAX_TRACK_DURATION) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+      updateTimeDisplay(currentAbsoluteTime);
+
+      if (elapsed < durationToPlay && !audio.paused) {
+        animFrameId = requestAnimationFrame(() => updateProgressBar(startPerfTime, durationToPlay, startOffset, maxAllowedTime));
+      } else if (elapsed >= durationToPlay) {
+        audio.pause();
+        progressBar.style.width = `${(maxAllowedTime / MAX_TRACK_DURATION) * 100}%`;
+        updateTimeDisplay(maxAllowedTime);
+      }
+    }
+
+    function playSnippet(startTime = 0) {
+      if (!audio.src) return;
+
+      if (stopTimer) clearTimeout(stopTimer);
+      if (animFrameId) cancelAnimationFrame(animFrameId);
+
+      const maxAllowedTime = DURATIONS[currentUnlockedIndex];
+      const durationToPlay = maxAllowedTime - startTime;
+
+      if (durationToPlay <= 0) return;
+
+      audio.currentTime = startTime;
+
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          const startPerfTime = performance.now();
+          updateProgressBar(startPerfTime, durationToPlay, startTime, maxAllowedTime);
+
+          stopTimer = setTimeout(() => {
+            audio.pause();
+          }, durationToPlay * 1000);
+        }).catch(() => {
+          document.getElementById('status').innerText = "Click interface first, then press play!";
+        });
+      }
+    }
+
+    function handleProgressBarClick(e) {
+      if (!audio.src) return;
+      const container = document.getElementById('progressContainer');
+      const rect = container.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const percentage = Math.max(0, Math.min(1, clickX / rect.width));
+      
+      const targetTime = percentage * MAX_TRACK_DURATION;
+      const maxAllowedTime = DURATIONS[currentUnlockedIndex];
+
+      if (targetTime <= maxAllowedTime) {
+        playSnippet(targetTime);
+      }
+    }
+
+    function handleSearchInput(query) {
+      if (searchDebounce) clearTimeout(searchDebounce);
+      if (!query || query.trim().length < 2) {
+        hideSuggestions();
+        return;
+      }
+
+      searchDebounce = setTimeout(() => {
+        const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=6`;
+        jsonp(url, 'onSearchFetched');
+      }, 300);
+    }
+
+    window.onSearchFetched = function(data) {
+      const suggestionsBox = document.getElementById('suggestions');
+      suggestionsBox.innerHTML = "";
+
+      if (!data.results || data.results.length === 0) {
+        hideSuggestions();
+        return;
+      }
+
+      data.results.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'suggestion-item';
+        div.innerHTML = `<strong>${item.trackName}</strong> <span class="suggestion-artist">by ${item.artistName}</span>`;
+        div.onclick = () => selectSuggestion(item.trackName);
+        suggestionsBox.appendChild(div);
+      });
+
+      suggestionsBox.style.display = 'block';
+    };
+
+    function selectSuggestion(title) {
+      document.getElementById('guessInput').value = title;
+      hideSuggestions();
+      checkGuess();
+    }
+
+    function hideSuggestions() {
+      document.getElementById('suggestions').style.display = 'none';
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-container')) hideSuggestions();
+    });
+
+    function triggerReveal(isCorrect) {
+      const overlay = document.getElementById('revealOverlay');
+      const header = document.getElementById('overlayHeader');
+      const coverArt = document.getElementById('coverArt');
+      const trackName = document.getElementById('trackName');
+      const artistName = document.getElementById('artistName');
+      const playCount = document.getElementById('playCount');
+      const timeBadge = document.getElementById('timeBadge');
+
+      if (isCorrect) {
+        header.innerText = "CORRECT!";
+        header.className = "overlay-title correct";
+        timeBadge.innerText = `Guessed at tier ${DURATIONS[currentUnlockedIndex]}s`;
+        timeBadge.style.display = "inline-block";
+      } else {
+        header.innerText = "WRONG / REVEALED";
+        header.className = "overlay-title wrong";
+        timeBadge.style.display = "none";
+      }
+
+      coverArt.src = currentTrack.artwork || 'https://via.placeholder.com/120?text=Music';
+      trackName.innerText = currentTrack.title;
+      artistName.innerText = `by ${currentTrack.artist}`;
+      playCount.innerText = `🎵 Stream Plays: ${currentTrack.plays}`;
+
+      overlay.classList.add('active');
+
+      setTimeout(() => {
+        overlay.classList.remove('active');
+        fetchTrack();
+      }, 3500);
+    }
+
+    function checkGuess() {
+      const userGuess = document.getElementById('guessInput').value.trim().toLowerCase();
+      hideSuggestions();
+
+      if (!userGuess || !currentTrack.title) return;
+
+      const cleanTitle = currentTrack.title.toLowerCase().replace(/\(.*\)/g, '').trim();
+
+      if (cleanTitle.includes(userGuess) || userGuess.includes(cleanTitle)) {
+        score += 100;
+        streak += 1;
+        document.getElementById('score').innerText = score;
+        document.getElementById('streak').innerText = streak;
+
+        triggerReveal(true);
+      } else {
+        if (currentUnlockedIndex === DURATIONS.length - 1) {
+          streak = 0;
+          document.getElementById('streak').innerText = streak;
+          triggerReveal(false);
+        } else {
+          const status = document.getElementById('status');
+          status.innerText = "❌ Incorrect! Skip to unlock the next tier.";
+          setTimeout(() => { status.innerText = ""; }, 2500);
+        }
+      }
+    }
+
+    function skipTrack() {
+      if (currentUnlockedIndex < DURATIONS.length - 1) {
+        const previousLimit = DURATIONS[currentUnlockedIndex];
+        currentUnlockedIndex++;
+        updateDurationUI();
+        
+        const status = document.getElementById('status');
+        status.innerText = "";
+        
+        playSnippet(previousLimit);
+      } else {
+        streak = 0;
+        document.getElementById('streak').innerText = streak;
+        triggerReveal(false);
+      }
+    }
+
+    function rerollTrack() {
+      if (currentTrack.title) {
+        streak = 0;
+        document.getElementById('streak').innerText = streak;
+        triggerReveal(false);
+      } else {
+        fetchTrack();
+      }
+    }
+
+    fetchTrack();
+  </script>
+</body>
+</html>
