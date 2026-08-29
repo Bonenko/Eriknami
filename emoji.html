@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emoji Cipher - Bonenko Anime Games</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: #0b0b0f;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .bg-glow-top {
+      position: absolute;
+      top: -100px;
+      left: 20%;
+      width: 500px;
+      height: 300px;
+      background: rgba(142, 68, 173, 0.08);
+      filter: blur(120px);
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .bg-glow-bottom {
+      position: absolute;
+      bottom: -100px;
+      right: 20%;
+      width: 500px;
+      height: 300px;
+      background: rgba(52, 152, 219, 0.08);
+      filter: blur(120px);
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .home-btn {
+      position: absolute;
+      top: 25px;
+      left: 25px;
+      background: rgba(18, 18, 22, 0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(142, 68, 173, 0.3);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      transition: all 0.2s ease;
+      z-index: 300;
+    }
+
+    .home-btn:hover {
+      background: rgba(30, 30, 40, 0.95);
+      border-color: #9b59b6;
+      transform: translateY(-2px);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      padding: 5rem 1.5rem 3rem 1.5rem;
+      text-align: center;
+      z-index: 10;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 900;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #9b59b6 0%, #3498db 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+      font-style: italic;
+    }
+
+    p.subtitle {
+      color: #88889c;
+      font-size: 1.05rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .score-banner {
+      display: inline-block;
+      background: rgba(18, 18, 24, 0.85);
+      border: 1px solid rgba(155, 89, 182, 0.25);
+      padding: 10px 25px;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+    }
+
+    .score-banner span {
+      color: #9b59b6;
+      font-weight: 900;
+    }
+
+    .game-card {
+      background: rgba(18, 18, 24, 0.9);
+      border: 3px solid #28202d;
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+      position: relative;
+    }
+
+    .game-card::after {
+      content: '';
+      position: absolute;
+      top: 6px; left: 6px; right: 6px; bottom: 6px;
+      border: 1px solid rgba(155, 89, 182, 0.2);
+      border-radius: 14px;
+      pointer-events: none;
+    }
+
+    .cipher-display {
+      font-size: 4rem;
+      letter-spacing: 15px;
+      margin: 1.5rem 0 1.5rem 0;
+      background: rgba(10, 10, 14, 0.6);
+      padding: 25px;
+      border-radius: 16px;
+      border: 1px solid rgba(155, 89, 182, 0.2);
+      word-break: break-word;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 1.8rem;
+    }
+
+    .btn-action {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 12px 24px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-action:hover:not(:disabled) {
+      background: rgba(155, 89, 182, 0.25);
+      border-color: #9b59b6;
+      transform: translateY(-2px);
+    }
+
+    .btn-action:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .search-container {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 15px 20px;
+      background: rgba(10, 10, 14, 0.9);
+      border: 2px solid rgba(155, 89, 182, 0.4);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1.05rem;
+      font-family: 'Outfit', sans-serif;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: #9b59b6;
+      box-shadow: 0 0 15px rgba(155, 89, 182, 0.2);
+    }
+
+    .suggestions-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #14141a;
+      border: 1px solid rgba(155, 89, 182, 0.3);
+      border-radius: 0 0 12px 12px;
+      max-height: 220px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+      text-align: left;
+    }
+
+    .suggestion-item {
+      padding: 12px 20px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      color: #ccc;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .suggestion-item:hover {
+      background: rgba(155, 89, 182, 0.15);
+      color: #fff;
+    }
+
+    .status-msg {
+      margin-top: 1.5rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+      min-height: 30px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+    }
+
+    .modal-card {
+      background: #121216;
+      border: 2px solid #9b59b6;
+      padding: 2.5rem;
+      border-radius: 20px;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9);
+    }
+
+    .modal-card h2 {
+      font-size: 2.2rem;
+      color: #e74c3c;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-card p {
+      color: #aaa;
+      font-size: 1.1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-restart {
+      background: linear-gradient(135deg, #9b59b6 0%, #3498db 100%);
+      color: #fff;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 900;
+      cursor: pointer;
+      width: 100%;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 768px) {
+      .container { padding-top: 4.5rem; }
+      h1 { font-size: 2.1rem; }
+      .cipher-display { font-size: 3rem; letter-spacing: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="index.html" class="home-btn">🏠 Home</a>
+
+  <div class="bg-glow-top"></div>
+  <div class="bg-glow-bottom"></div>
+
+  <div class="container">
+    <h1>Emoji Cipher</h1>
+    <p class="subtitle">Guess correctly anytime, or use clues to proceed!</p>
+
+    <div class="score-banner">
+      Streak: <span id="currentScore">0</span> | Best: <span id="bestScore">0</span>
+    </div>
+
+    <div class="game-card">
+      <div class="cipher-display" id="cipherDisplay">⚔️</div>
+
+      <div class="action-row">
+        <button class="btn-action" id="nextEmojiBtn" onclick="revealNextEmoji()">➕ Next Emoji Clue</button>
+      </div>
+
+      <div class="search-container">
+        <input type="text" id="animeInput" class="search-input" placeholder="Type anime title..." autocomplete="off" oninput="filterSuggestions()">
+        <div class="suggestions-list" id="suggestionsBox"></div>
+      </div>
+
+      <div class="status-msg" id="statusMsg"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="gameOverModal">
+    <div class="modal-card">
+      <h2>Wrong Guess!</h2>
+      <p id="correctAnswerReveal">The correct anime was: </p>
+      <div style="font-size: 1.4rem; font-weight: 900; margin-bottom: 1.5rem; color: #9b59b6;">Score: <span id="finalScoreVal">0</span></div>
+      <button class="btn-restart" onclick="restartGame()">Try Again</button>
+    </div>
+  </div>
+
+  <script>
+    const masterEmojiDatabase = [
+      { anime: "Attack on Titan", emojis: ["⚔️", "巨人", "🛡️"] },
+      { anime: "Bleach", emojis: ["🗡️", "👻", "🟠"] },
+      { anime: "Demon Slayer", emojis: ["👺", "⚔️", "🔥"] },
+      { anime: "Naruto", emojis: ["🍥", "🦊", "🥷"] },
+      { anime: "One Piece", emojis: ["🏴‍☠️", "👒", "🍖"] },
+      { anime: "Jujutsu Kaisen", emojis: ["👁️", "🤞", "⚡"] },
+      { anime: "My Hero Academia", emojis: ["🥦", "💥", "🦸"] },
+      { anime: "Death Note", emojis: ["📓", "🍎", "👁️"] },
+      { anime: "Fullmetal Alchemist Brotherhood", emojis: ["🦾", "🛡️", "🧪"] },
+      { anime: "Tokyo Ghoul", emojis: ["☕", "👁️", "🖤"] },
+      { anime: "Hunter x Hunter", emojis: ["🎣", "🛹", "🐜"] },
+      { anime: "Chainsaw Man", emojis: ["🪚", "🩸", "🐶"] },
+      { anime: "Dragon Ball Z", emojis: ["🟠", "🐉", "🥋"] },
+      { anime: "Neon Genesis Evangelion", emojis: ["🤖", "💜", "🌆"] },
+      { anime: "Steins Gate", emojis: ["🕒", "🔬", "📱"] },
+      { anime: "Blue Lock", emojis: ["⚽", "🔒", "🔵"] },
+      { anime: "Spy x Family", emojis: ["🥜", "🕵️‍♀️", "🧠"] },
+      { anime: "Oshi no Ko", emojis: ["⭐", "👁️", "🎤"] },
+      { anime: "Mob Psycho 100", emojis: ["🥣", "💥", "🔮"] },
+      { anime: "Vinland Saga", emojis: ["⛵", "🪓", "🥶"] },
+      { anime: "Haikyuu", emojis: ["🏐", "👑", "🦅"] },
+      { anime: "Cowboy Bebop", emojis: ["🎷", "🚀", "🐕"] },
+      { anime: "Code Geass", emojis: ["♟️", "👁️", "👑"] },
+      { anime: "Black Clover", emojis: ["☘️", "⚔️", "📖"] },
+      { anime: "Solo Leveling", emojis: ["🗡️", "🕶️", "📈"] },
+      { anime: "Bocchi the Rock", emojis: ["🎸", "🥺", "📦"] },
+      { anime: "Fairy Tail", emojis: ["🧚", "🔥", "🐟"] },
+      { anime: "Dr Stone", emojis: ["🧪", "🔬", "🌍"] },
+      { anime: "Gurren Lagann", emojis: ["🕶️", "🌀", "🚀"] },
+      { anime: "Cyberpunk Edgerunners", emojis: ["🌙", "🦾", "💊"] },
+      { anime: "Banana Fish", emojis: ["🍌", "🐟", "🔫"] },
+      { anime: "Bungou Stray Dogs", emojis: ["🐯", "📖", "🔎"] },
+      { anime: "Classroom of the Elite", emojis: ["🏫", "🧊", "♟️"] },
+      { anime: "Darling in the Franxx", emojis: ["🦕", "🤖", "❤️"] },
+      { anime: "Fire Force", emojis: ["🔥", "🚒", "✨"] },
+      { anime: "Kaguya-sama Love is War", emojis: ["❤️", "🏹", "🧠"] },
+      { anime: "Made in Abyss", emojis: ["🕳️", "🎒", "🤖"] },
+      { anime: "Noragami", emojis: ["⛩️", "🪙", "⚔️"] },
+      { anime: "Overlord", emojis: ["💀", "👑", "🧙‍♂️"] },
+      { anime: "Re Zero", emojis: ["🔄", "💀", "🧝‍♀️"] },
+      { anime: "Sword Art Online", emojis: ["⚔️", "🥽", "🧚"] },
+      { anime: "The Promised Neverland", emojis: ["📦", "🔥", "👀"] },
+      { anime: "Toradora", emojis: ["🐅", "🐉", "🏫"] },
+      { anime: "Your Lie in April", emojis: ["🎹", "🎻", "🌸"] },
+      { anime: "Zom 100", emojis: ["🧟‍♂️", "🍺", "📋"] },
+      { anime: "Akame ga Kill", emojis: ["🗡️", "🩸", "💀"] },
+      { anime: "Anohana", emojis: ["👻", "🌸", "🌼"] },
+      { anime: "Parasyte", emojis: ["🦠", "✋", "👁️"] },
+      { anime: "Psycho Pass", emojis: ["🔫", "🌐", "⚖️"] },
+      { anime: "Hells Paradise", emojis: ["🏝️", "🌸", "🥷"] },
+      { anime: "Mashle", emojis: ["💪", "🪄", "🥞"] },
+      { anime: "Tokyo Revengers", emojis: ["🏍️", "⏰", "👊"] },
+      { anime: "Trigun Stampede", emojis: ["🏜️", "🍩", "🔫"] },
+      { anime: "Ranking of Kings", emojis: ["👑", "🛡️", "🥷"] },
+      { anime: "Horimiya", emojis: ["🏫", "🖤", "🥧"] },
+      { anime: "Mushoku Tensei", emojis: ["🧙‍♂️", "👶", "🗺️"] },
+      { anime: "That Time I Got Reincarnated as a Slime", emojis: ["🔵", "🗡️", "👑"] },
+      { anime: "The Eminence in Shadow", emojis: ["🌙", "🗡️", "🕶️"] },
+      { anime: "Shield Hero", emojis: ["🛡️", "🐦", "🐤"] },
+      { anime: "No Game No Life", emojis: ["🎮", "♟️", "👑"] },
+      { anime: "Konosuba", emojis: ["🟦", " Goddess", "💥"] },
+      { anime: "DanMachi", emojis: ["🗡️", "🐰", "💡"] },
+      { anime: "Fate Zero", emojis: ["⚔️", "👑", "🏆"] },
+      { anime: "Log Horizon", emojis: ["👓", "🏰", "💻"] },
+      { anime: "Hellsing Ultimate", emojis: ["🧛‍♂️", "🔫", "✝️"] },
+      { anime: "Drifters", emojis: ["⚔️", "🚪", "🌍"] }
+    ];
+
+    let availablePool = [];
+    let currentTarget = null;
+    let visibleEmojiCount = 1;
+    let currentScore = 0;
+    let bestScore = 0;
+
+    const allAnimeTitles = [...new Set(masterEmojiDatabase.map(item => item.anime))];
+
+    function initGame() {
+      availablePool = [...masterEmojiDatabase];
+      currentScore = 0;
+      document.getElementById('currentScore').innerText = currentScore;
+      document.getElementById('gameOverModal').style.display = 'none';
+      nextRound();
+    }
+
+    function nextRound() {
+      document.getElementById('statusMsg').innerText = "";
+      document.getElementById('animeInput').value = "";
+
+      if (availablePool.length === 0) {
+        availablePool = [...masterEmojiDatabase];
+      }
+
+      const randomIndex = Math.floor(Math.random() * availablePool.length);
+      currentTarget = availablePool[randomIndex];
+      
+      visibleEmojiCount = 1;
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      const activeEmojis = currentTarget.emojis.slice(0, visibleEmojiCount).join("");
+      document.getElementById('cipherDisplay').innerText = activeEmojis;
+
+      const btn = document.getElementById('nextEmojiBtn');
+      if (visibleEmojiCount >= currentTarget.emojis.length) {
+        btn.innerText = "Max Clues Reached";
+        btn.disabled = true;
+      } else {
+        btn.innerText = `➕ Next Emoji Clue (${visibleEmojiCount}/${currentTarget.emojis.length})`;
+        btn.disabled = false;
+      }
+    }
+
+    function revealNextEmoji() {
+      if (visibleEmojiCount < currentTarget.emojis.length) {
+        visibleEmojiCount++;
+        updateDisplay();
+      }
+    }
+
+    function filterSuggestions() {
+      const query = document.getElementById('animeInput').value.toLowerCase().trim();
+      const box = document.getElementById('suggestionsBox');
+      box.innerHTML = "";
+
+      if (!query) {
+        box.style.display = 'none';
+        return;
+      }
+
+      const matches = allAnimeTitles.filter(name => 
+        name.toLowerCase().includes(query)
+      ).slice(0, 6);
+
+      if (matches.length > 0) {
+        box.style.display = 'block';
+        matches.forEach(title => {
+          const div = document.createElement('div');
+          div.className = 'suggestion-item';
+          div.innerText = title;
+          div.onclick = () => submitGuess(title);
+          box.appendChild(div);
+        });
+      } else {
+        box.style.display = 'none';
+      }
+    }
+
+    function submitGuess(guessedTitle) {
+      document.getElementById('suggestionsBox').style.display = 'none';
+      document.getElementById('animeInput').value = guessedTitle;
+
+      const isCorrect = guessedTitle.toLowerCase() === currentTarget.anime.toLowerCase();
+
+      if (isCorrect) {
+        availablePool = availablePool.filter(item => item.anime !== currentTarget.anime);
+
+        currentScore++;
+        if (currentScore > bestScore) bestScore = currentScore;
+        document.getElementById('currentScore').innerText = currentScore;
+        document.getElementById('bestScore').innerText = bestScore;
+        
+        const msg = document.getElementById('statusMsg');
+        msg.style.color = "#1db954";
+        msg.innerText = "✨ Correct! Next cipher...";
+
+        setTimeout(() => {
+          nextRound();
+        }, 900);
+      } else {
+        if (visibleEmojiCount < currentTarget.emojis.length) {
+          visibleEmojiCount++;
+          updateDisplay();
+          const msg = document.getElementById('statusMsg');
+          msg.style.color = "#f39c12";
+          msg.innerText = "⚠️ Wrong! Next emoji unlocked.";
+          document.getElementById('animeInput').value = "";
+        } else {
+          document.getElementById('finalScoreVal').innerText = currentScore;
+          document.getElementById('correctAnswerReveal').innerText = `The correct anime was: ${currentTarget.anime}`;
+          document.getElementById('gameOverModal').style.display = 'flex';
+        }
+      }
+    }
+
+    function restartGame() {
+      initGame();
+    }
+
+    window.onclick = function(e) {
+      if (!e.target.closest('.search-container')) {
+        document.getElementById('suggestionsBox').style.display = 'none';
+      }
+    }
+
+    initGame();
+  </script>
+</body>
+</html>
