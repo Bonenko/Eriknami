@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anisong Symphony - Bonenko Anime Games</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: #0b0b0f;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .bg-glow-top {
+      position: absolute;
+      top: -100px;
+      left: 20%;
+      width: 500px;
+      height: 300px;
+      background: rgba(212, 175, 55, 0.08);
+      filter: blur(120px);
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .bg-glow-bottom {
+      position: absolute;
+      bottom: -100px;
+      right: 20%;
+      width: 500px;
+      height: 300px;
+      background: rgba(230, 50, 50, 0.08);
+      filter: blur(120px);
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .home-btn {
+      position: absolute;
+      top: 25px;
+      left: 25px;
+      background: rgba(18, 18, 22, 0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(243, 156, 18, 0.3);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      transition: all 0.2s ease;
+      z-index: 300;
+    }
+
+    .home-btn:hover {
+      background: rgba(30, 30, 40, 0.95);
+      border-color: #f39c12;
+      transform: translateY(-2px);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      padding: 5rem 1.5rem 3rem 1.5rem;
+      text-align: center;
+      z-index: 10;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 900;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+      font-style: italic;
+    }
+
+    p.subtitle {
+      color: #88889c;
+      font-size: 1.05rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .score-banner {
+      display: inline-block;
+      background: rgba(18, 18, 24, 0.85);
+      border: 1px solid rgba(243, 156, 18, 0.25);
+      padding: 10px 25px;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+    }
+
+    .score-banner span {
+      color: #f39c12;
+      font-weight: 900;
+    }
+
+    .game-card {
+      background: rgba(18, 18, 24, 0.9);
+      border: 3px solid #2d2820;
+      border-radius: 20px;
+      padding: 2.2rem;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+      position: relative;
+    }
+
+    .game-card::after {
+      content: '';
+      position: absolute;
+      top: 6px; left: 6px; right: 6px; bottom: 6px;
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 14px;
+      pointer-events: none;
+    }
+
+    .audio-controls-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.2rem;
+      margin-bottom: 2rem;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-play {
+      background: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);
+      color: #000;
+      border: none;
+      padding: 14px 26px;
+      font-size: 1.05rem;
+      font-weight: 900;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(243, 156, 18, 0.3);
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-play:hover:not(:disabled) {
+      transform: scale(1.05);
+      opacity: 0.95;
+    }
+
+    .btn-play:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-skip {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 14px 20px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+    }
+
+    .btn-skip:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: #fff;
+    }
+
+    .progress-section {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .progress-container {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      height: 10px;
+      border-radius: 5px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #f39c12, #e74c3c);
+      border-radius: 5px;
+      pointer-events: none;
+    }
+
+    .time-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #88889c;
+      font-weight: 700;
+    }
+
+    .volume-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+
+    .volume-slider {
+      appearance: none;
+      width: 120px;
+      height: 6px;
+      background: #2a2a35;
+      border-radius: 3px;
+      outline: none;
+    }
+
+    .volume-slider::-webkit-slider-thumb {
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #f39c12;
+      cursor: pointer;
+    }
+
+    .track-type-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #f39c12;
+      background: rgba(243, 156, 18, 0.1);
+      border: 1px solid rgba(243, 156, 18, 0.3);
+      padding: 4px 12px;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+
+    .search-container {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 15px 20px;
+      background: rgba(10, 10, 14, 0.9);
+      border: 2px solid rgba(243, 156, 18, 0.4);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1.05rem;
+      font-family: 'Outfit', sans-serif;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: #f39c12;
+      box-shadow: 0 0 15px rgba(243, 156, 18, 0.2);
+    }
+
+    .suggestions-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #14141a;
+      border: 1px solid rgba(243, 156, 18, 0.3);
+      border-radius: 0 0 12px 12px;
+      max-height: 220px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+      text-align: left;
+    }
+
+    .suggestion-item {
+      padding: 12px 20px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      color: #ccc;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .suggestion-item:hover {
+      background: rgba(243, 156, 18, 0.15);
+      color: #fff;
+    }
+
+    .status-msg {
+      margin-top: 1.5rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+      min-height: 30px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+    }
+
+    .modal-card {
+      background: #121216;
+      border: 2px solid #f39c12;
+      padding: 2.5rem;
+      border-radius: 20px;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9);
+    }
+
+    .modal-card h2 {
+      font-size: 2.2rem;
+      color: #e74c3c;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-card p {
+      color: #aaa;
+      font-size: 1.1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-restart {
+      background: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);
+      color: #000;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 900;
+      cursor: pointer;
+      width: 100%;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 768px) {
+      .container { padding-top: 4.5rem; }
+      h1 { font-size: 2.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="index.html" class="home-btn">🏠 Home</a>
+
+  <div class="bg-glow-top"></div>
+  <div class="bg-glow-bottom"></div>
+
+  <div class="container">
+    <h1>Anisong Symphony</h1>
+    <p class="subtitle">Ultimate Anime OPs, EDs & Iconic OST Master Quiz</p>
+
+    <div class="score-banner">
+      Streak: <span id="currentScore">0</span> | Best: <span id="bestScore">0</span>
+    </div>
+
+    <div class="game-card">
+      <div>
+        <span class="track-type-badge" id="trackTypeBadge">Preparing Audio...</span>
+      </div>
+      
+      <div class="audio-controls-wrapper">
+        <div class="button-group">
+          <button class="btn-play" id="playBtn" onclick="togglePlayPause()" disabled>⏳ Loading...</button>
+          <button class="btn-skip" onclick="skipTrack()">⏭ Skip Track</button>
+        </div>
+        
+        <div class="progress-section">
+          <div class="progress-container" id="progressContainer" onclick="seekAudio(event)">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+          <div class="time-info">
+            <span id="currentTimeDisplay">0.0s</span>
+            <span id="totalTimeDisplay">10.0s</span>
+          </div>
+        </div>
+
+        <div class="volume-box">
+          <span>🔊 Volume:</span>
+          <input type="range" min="0" max="1" step="0.05" value="1" class="volume-slider" id="volumeSlider" oninput="changeVolume(this.value)">
+        </div>
+      </div>
+
+      <div class="search-container">
+        <input type="text" id="animeInput" class="search-input" placeholder="Type anime title..." autocomplete="off" oninput="filterSuggestions()">
+        <div class="suggestions-list" id="suggestionsBox"></div>
+      </div>
+
+      <div class="status-msg" id="statusMsg"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="gameOverModal">
+    <div class="modal-card">
+      <h2>Wrong Guess!</h2>
+      <p id="correctAnswerReveal">The correct anime was: </p>
+      <div style="font-size: 1.4rem; font-weight: 900; margin-bottom: 1.5rem; color: #f39c12;">Score: <span id="finalScoreVal">0</span></div>
+      <button class="btn-restart" onclick="restartGame()">Try Again</button>
+    </div>
+  </div>
+
+  <audio id="themeAudio" preload="auto"></audio>
+
+  <script>
+    const masterAnimeDatabase = [
+      { anime: "Attack on Titan", type: "Original Soundtrack (OST)", url: "https://animethemes.moe/video/ShingekiNoKyojin-OP2.webm" },
+      { anime: "Attack on Titan", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/ShingekiNoKyojin-OP1.webm" },
+      { anime: "Attack on Titan", type: "Ending Theme (ED)", url: "https://animethemes.moe/video/ShingekiNoKyojin-ED1.webm" },
+      { anime: "Bleach", type: "Original Soundtrack (OST)", url: "https://animethemes.moe/video/Bleach-OP2.webm" },
+      { anime: "Bleach", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/Bleach-OP1.webm" },
+      { anime: "Bleach", type: "Ending Theme (ED)", url: "https://animethemes.moe/video/Bleach-ED1.webm" },
+      { anime: "Bleach Thousand Year Blood War", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/BleachSennenKessenHen-OP1.webm" },
+      { anime: "Demon Slayer", type: "Original Soundtrack (OST)", url: "https://animethemes.moe/video/KimetsuNoYaiba-ED1.webm" },
+      { anime: "Demon Slayer", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/KimetsuNoYaiba-OP1.webm" },
+      { anime: "Demon Slayer", type: "Ending Theme (ED)", url: "https://animethemes.moe/video/KimetsuNoYaiba-ED2.webm" },
+      { anime: "Naruto", type: "Original Soundtrack (OST)", url: "https://animethemes.moe/video/Naruto-ED1.webm" },
+      { anime: "Naruto", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/Naruto-OP1.webm" },
+      { anime: "Naruto", type: "Ending Theme (ED)", url: "https://animethemes.moe/video/Naruto-ED2.webm" },
+      { anime: "Naruto Shippuden", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/NarutoShippuden-OP1.webm" },
+      { anime: "Naruto Shippuden", type: "Ending Theme (ED)", url: "https://animethemes.moe/video/NarutoShippuden-ED1.webm" },
+      { anime: "One Piece", type: "Original Soundtrack (OST)", url: "https://animethemes.moe/video/OnePiece-ED1.webm" },
+      { anime: "One Piece", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/OnePiece-OP1.webm" },
+      { anime: "One Piece", type: "Ending Theme (ED)", url: "https://animethemes.moe/video/OnePiece-ED2.webm" },
+      { anime: "Jujutsu Kaisen", type: "Original Soundtrack (OST)", url: "https://animethemes.moe/video/JujutsuKaisen-ED1.webm" },
+      { anime: "Jujutsu Kaisen", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/JujutsuKaisen-OP1.webm" },
+      { anime: "Jujutsu Kaisen", type: "Ending Theme (ED)", url: "https://animethemes.moe/video/JujutsuKaisen-ED2.webm" },
+      { anime: "My Hero Academia", type: "Original Soundtrack (OST)", url: "https://animethemes.moe/video/BokuNoHeroAcademia-ED1.webm" },
+      { anime: "My Hero Academia", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/BokuNoHeroAcademia-OP1.webm" },
+      { anime: "Death Note", type: "Original Soundtrack (OST)", url: "https://animethemes.moe/video/DeathNote-ED1.webm" },
+      { anime: "Death Note", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/DeathNote-OP1.webm" },
+      { anime: "Fullmetal Alchemist Brotherhood", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/FullmetalAlchemistBrotherhood-OP1.webm" },
+      { anime: "Fullmetal Alchemist Brotherhood", type: "Ending Theme (ED)", url: "https://animethemes.moe/video/FullmetalAlchemistBrotherhood-ED1.webm" },
+      { anime: "Tokyo Ghoul", type: "Original Soundtrack (OST)", url: "https://animethemes.moe/video/TokyoGhoul-ED1.webm" },
+      { anime: "Tokyo Ghoul", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/TokyoGhoul-OP1.webm" },
+      { anime: "Hunter x Hunter", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/HunterXHunter2011-OP1.webm" },
+      { anime: "Chainsaw Man", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/ChainsawMan-OP1.webm" },
+      { anime: "Dragon Ball Z", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/DragonBallZ-OP1.webm" },
+      { anime: "Neon Genesis Evangelion", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/NeonGenesisEvangelion-OP1.webm" },
+      { anime: "Steins Gate", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/SteinsGate-OP1.webm" },
+      { anime: "Blue Lock", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/BlueLock-OP1.webm" },
+      { anime: "Spy x Family", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/SpyXFamily-OP1.webm" },
+      { anime: "Oshi no Ko", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/OshiNoKo-OP1.webm" },
+      { anime: "Mob Psycho 100", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/MobPsycho100-OP1.webm" },
+      { anime: "Vinland Saga", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/VinlandSaga-OP1.webm" },
+      { anime: "Haikyuu", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/Haikyuu-OP1.webm" },
+      { anime: "Cowboy Bebop", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/CowboyBebop-OP1.webm" },
+      { anime: "Code Geass", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/CodeGeass-OP1.webm" },
+      { anime: "Black Clover", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/BlackClover-OP1.webm" },
+      { anime: "Solo Leveling", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/SoloLeveling-OP1.webm" },
+      { anime: "Bocchi the Rock", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/BocchiTheRock-OP1.webm" },
+      { anime: "Fairy Tail", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/FairyTail-OP1.webm" },
+      { anime: "Dr Stone", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/DrStone-OP1.webm" },
+      { anime: "Gurren Lagann", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/TengenToppaGurrenLagann-OP1.webm" },
+      { anime: "Cyberpunk Edgerunners", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/CyberpunkEdgerunners-OP1.webm" },
+      { anime: "Banana Fish", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/BananaFish-OP1.webm" },
+      { anime: "Bungou Stray Dogs", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/BungouStrayDogs-OP1.webm" },
+      { anime: "Classroom of the Elite", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/YoukosoJitsuryokuShijouShugiNoKyoushitsuE-OP1.webm" },
+      { anime: "Darling in the Franxx", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/DarlingInTheFranxx-OP1.webm" },
+      { anime: "Fire Force", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/EnenNoShouboutai-OP1.webm" },
+      { anime: "Kaguya-sama Love is War", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/KaguyaSamaWaKokurasetai-OP1.webm" },
+      { anime: "Made in Abyss", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/MadeInAbyss-OP1.webm" },
+      { anime: "Noragami", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/Noragami-OP1.webm" },
+      { anime: "Overlord", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/Overlord-OP1.webm" },
+      { anime: "Re Zero", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/ReZeroKaraHajimeruIsekaiSeikatsu-OP1.webm" },
+      { anime: "Sword Art Online", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/SwordArtOnline-OP1.webm" },
+      { anime: "The Promised Neverland", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/YakusokuNoNeverland-OP1.webm" },
+      { anime: "Toradora", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/Toradora-OP1.webm" },
+      { anime: "Your Lie in April", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/ShigatsuWaKimiNoUso-OP1.webm" },
+      { anime: "Zom 100", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/Zom100-OP1.webm" },
+      { anime: "Akame ga Kill", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/AkameGaKill-OP1.webm" },
+      { anime: "Anohana", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/Anohana-OP1.webm" },
+      { anime: "Parasyte", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/Kiseijuu-OP1.webm" },
+      { anime: "Psycho Pass", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/PsychoPass-OP1.webm" },
+      { anime: "Hells Paradise", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/Jigokuraku-OP1.webm" },
+      { anime: "Mashle", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/Mashle-OP1.webm" },
+      { anime: "Tokyo Revengers", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/TokyoRevengers-OP1.webm" },
+      { anime: "Trigun Stampede", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/TrigunStampede-OP1.webm" },
+      { anime: "Ranking of Kings", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/OusamaRanking-OP1.webm" },
+      { anime: "Horimiya", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/Horimiya-OP1.webm" },
+      { anime: "Mushoku Tensei", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/MushokuTensei-OP1.webm" },
+      { anime: "That Time I Got Reincarnated as a Slime", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/TenseiShitaraSuraimuDattaKen-OP1.webm" },
+      { anime: "The Eminence in Shadow", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/KageNoJitsuryokushaNiNaritakute-OP1.webm" },
+      { anime: "Shield Hero", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/TateNoYuushaNoNariagari-OP1.webm" },
+      { anime: "No Game No Life", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/NoGameNoLife-OP1.webm" },
+      { anime: "Konosuba", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/KonoSubarashiiSekaiNiShukufukuWo-OP1.webm" },
+      { anime: "DanMachi", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/DungeonNiDeaiWoMotomeruNowaMachigatteiruDarouKa-OP1.webm" },
+      { anime: "Fate Zero", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/FateZero-OP1.webm" },
+      { anime: "Fate Stay Night Unlimited Blade Works", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/FateStayNightUnlimitedBladeWorks-OP1.webm" },
+      { anime: "Log Horizon", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/LogHorizon-OP1.webm" },
+      { anime: "Hellsing Ultimate", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/HellsingUltimate-ED1.webm" },
+      { anime: "Drifters", type: "Opening Theme (OP)", url: "https://animethemes.moe/video/Drifters-OP1.webm" }
+    ];
+
+    let currentTarget = null;
+    let currentScore = 0;
+    let bestScore = 0;
+    let audioTimer = null;
+    let audioElement = document.getElementById('themeAudio');
+    const clipDuration = 10.0;
+
+    const allAnimeTitles = [...new Set(masterAnimeDatabase.map(item => item.anime))];
+
+    function nextRound() {
+      document.getElementById('statusMsg').innerText = "";
+      document.getElementById('animeInput').value = "";
+      document.getElementById('progressBar').style.width = '0%';
+      document.getElementById('currentTimeDisplay').innerText = "0.0s";
+      clearInterval(audioTimer);
+
+      const playBtn = document.getElementById('playBtn');
+      playBtn.innerText = "⏳ Loading Track...";
+      playBtn.disabled = true;
+
+      currentTarget = masterAnimeDatabase[Math.floor(Math.random() * masterAnimeDatabase.length)];
+      document.getElementById('trackTypeBadge').innerText = currentTarget.type;
+
+      audioElement.src = currentTarget.url;
+      audioElement.load();
+    }
+
+    function skipTrack() {
+      audioElement.pause();
+      clearInterval(audioTimer);
+      document.getElementById('statusMsg').style.color = "#f39c12";
+      document.getElementById('statusMsg').innerText = `Skipped! It was: ${currentTarget.anime}`;
+      setTimeout(() => {
+        nextRound();
+      }, 1200);
+    }
+
+    audioElement.oncanplaythrough = () => {
+      const playBtn = document.getElementById('playBtn');
+      playBtn.innerText = "▶ Play Audio Clip";
+      playBtn.disabled = false;
+    };
+
+    audioElement.onerror = () => {
+      nextRound(); 
+    };
+
+    function togglePlayPause() {
+      const playBtn = document.getElementById('playBtn');
+
+      if (!audioElement.paused) {
+        // Pause state
+        audioElement.pause();
+        clearInterval(audioTimer);
+        playBtn.innerText = "▶ Resume Clip";
+      } else {
+        // Play/Resume state
+        if (audioElement.currentTime >= clipDuration || audioElement.currentTime >= audioElement.duration) {
+          audioElement.currentTime = 0;
+        }
+        
+        audioElement.play().then(() => {
+          playBtn.innerText = "⏸ Pause Clip";
+          startAudioTracker();
+        }).catch(() => {
+          playBtn.innerText = "▶ Play Audio Clip";
+        });
+      }
+    }
+
+    function startAudioTracker() {
+      clearInterval(audioTimer);
+      audioTimer = setInterval(() => {
+        const current = audioElement.currentTime;
+        const pct = Math.min((current / clipDuration) * 100, 100);
+        
+        document.getElementById('progressBar').style.width = pct + '%';
+        document.getElementById('currentTimeDisplay').innerText = current.toFixed(1) + 's';
+
+        if (current >= clipDuration) {
+          audioElement.pause();
+          clearInterval(audioTimer);
+          document.getElementById('playBtn').innerText = "▶ Replay Clip";
+        }
+      }, 50);
+    }
+
+    function seekAudio(event) {
+      if (audioElement.readyState < 2) return;
+      
+      const container = document.getElementById('progressContainer');
+      const rect = container.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const width = rect.width;
+      const clickRatio = Math.max(0, Math.min(1, clickX / width));
+      
+      const newTime = clickRatio * clipDuration;
+      audioElement.currentTime = newTime;
+      
+      const pct = clickRatio * 100;
+      document.getElementById('progressBar').style.width = pct + '%';
+      document.getElementById('currentTimeDisplay').innerText = newTime.toFixed(1) + 's';
+
+      if (!audioElement.paused) {
+        startAudioTracker();
+      }
+    }
+
+    function changeVolume(val) {
+      audioElement.volume = parseFloat(val);
+    }
+
+    function filterSuggestions() {
+      const query = document.getElementById('animeInput').value.toLowerCase().trim();
+      const box = document.getElementById('suggestionsBox');
+      box.innerHTML = "";
+
+      if (!query) {
+        box.style.display = 'none';
+        return;
+      }
+
+      const matches = allAnimeTitles.filter(name => 
+        name.toLowerCase().includes(query)
+      ).slice(0, 6);
+
+      if (matches.length > 0) {
+        box.style.display = 'block';
+        matches.forEach(title => {
+          const div = document.createElement('div');
+          div.className = 'suggestion-item';
+          div.innerText = title;
+          div.onclick = () => submitGuess(title);
+          box.appendChild(div);
+        });
+      } else {
+        box.style.display = 'none';
+      }
+    }
+
+    function submitGuess(guessedTitle) {
+      audioElement.pause();
+      clearInterval(audioTimer);
+      document.getElementById('suggestionsBox').style.display = 'none';
+      document.getElementById('animeInput').value = guessedTitle;
+
+      const isCorrect = guessedTitle.toLowerCase() === currentTarget.anime.toLowerCase();
+
+      if (isCorrect) {
+        currentScore++;
+        if (currentScore > bestScore) bestScore = currentScore;
+        document.getElementById('currentScore').innerText = currentScore;
+        document.getElementById('bestScore').innerText = bestScore;
+        
+        const msg = document.getElementById('statusMsg');
+        msg.style.color = "#1db954";
+        msg.innerText = "✨ Correct! Loading next song...";
+
+        setTimeout(() => {
+          nextRound();
+        }, 1000);
+      } else {
+        document.getElementById('finalScoreVal').innerText = currentScore;
+        document.getElementById('correctAnswerReveal').innerText = `The correct anime was: ${currentTarget.anime}`;
+        document.getElementById('gameOverModal').style.display = 'flex';
+      }
+    }
+
+    function restartGame() {
+      currentScore = 0;
+      document.getElementById('currentScore').innerText = currentScore;
+      document.getElementById('gameOverModal').style.display = 'none';
+      nextRound();
+    }
+
+    window.onclick = function(e) {
+      if (!e.target.closest('.search-container')) {
+        document.getElementById('suggestionsBox').style.display = 'none';
+      }
+    }
+
+    nextRound();
+  </script>
+</body>
+</html>
